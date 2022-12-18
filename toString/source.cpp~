@@ -1,0 +1,181 @@
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <vector>
+
+std::string getString(...) {
+	
+}
+
+#define STRING_ACCUMULATOR(...) __VA_ARGS__
+#define STRING_ACCUMULATOR1(a, b) "a b"
+#define STRING_ACCUMULATOR2(x, y) print##f("%d\n", 10)
+#define STRING_ACCUMULATOR3(x, y) x + y
+#define STRING_ACCUMULATOR4(...) getString(static_cast<std::string>(__VA_ARGS__))
+#define PRINT(...) printf("%d %d %d\n", __VA_ARGS__)
+
+
+
+
+
+template <typename... T>
+void spaces(T... args) {
+	spaces(args...);
+}
+
+void tprintf(const char* format) // base function
+{
+    std::cout << format;
+}
+
+template<typename T, typename... Targs>
+void tprintf(const char* format, T value, Targs... Fargs) // recursive variadic function
+{
+    for (; *format != '\0'; format++)
+    {
+        if (*format == '%')
+        {
+            std::cout << value;
+            tprintf(format + 1, Fargs...); // recursive call
+            return;
+        }
+        std::cout << *format;
+    }
+}
+
+double average(int count, ...)
+{
+    // va_list found in <cstdarg> and
+    // list is its type, used to
+    // iterate on ellipsis
+    va_list list;
+
+    // Initialize position of va_list
+    va_start(list, count);
+
+    double avg = 0.0;
+
+    // Iterate through every argument
+    for (int i = 0; i < count; i++) {
+		avg += static_cast<double>(va_arg(list, int)) / count;
+    }
+
+    // Ends the use of va_list
+    va_end(list);
+
+    // Return the average
+    return avg;
+}
+
+typedef unsigned int Entity_ID; 
+
+template <typename Component_Type>
+void CreateComponent(const Entity_ID& _u_iEntity)
+{
+	std::cout << typeid(Component_Type).name() << " " << _u_iEntity << std::endl;
+}
+
+/// Allow to give a various components to chosen entity.
+        
+template <typename Component_Type, typename Component_Type2, typename... Args>
+void CreateComponent(const Entity_ID& _u_iEntity)
+{
+	CreateComponent<Component_Type2, Args...>(_u_iEntity);
+	CreateComponent<Component_Type>(_u_iEntity);
+}
+
+
+void simple_printf(const char* fmt...) // C-style "const char* fmt, ..." is also valid
+{
+    va_list args;
+    va_start(args, fmt);
+
+    while (*fmt != '\0') {
+        if (*fmt == 'd') {
+            int i = va_arg(args, int);
+            std::cout << i << '\n';
+        } else if (*fmt == 'c') {
+            // note automatic conversion to integral type
+            int c = va_arg(args, int);
+            std::cout << static_cast<char>(c) << '\n';
+        } else if (*fmt == 'f') {
+            double d = va_arg(args, double);
+            std::cout << d << '\n';
+        }
+        ++fmt;
+    }
+
+    va_end(args);
+}
+
+std::string toString1( int size... ) {
+	va_list args;
+	va_start(args, size);
+
+	for ( int i = 0; i < size; ++i ) {
+		int current = va_arg(args, int);
+		std::cout << current << std::endl;
+	}
+}
+
+char* reverseString( char* string, unsigned int size ) {
+    char element0;
+	char element1;
+	
+	for ( int i = 0; i < size / 2; ++i) {
+		element0 = string[i];
+		element1 = string[size - i - 1];
+
+		string[size - i - 1] = element0;
+		string[i] = element1;
+	}
+	
+	return string;
+}
+
+char* toString(int value) {
+	int stringIndex = 0;
+	int var = 0;
+	
+	char* string = new char[24];
+
+	while(value > 0) {
+		var = value % 10;
+		value -= var;
+		value = value / 10;
+		var += 48;
+
+		string[stringIndex] = var;
+		++stringIndex;
+	}
+	
+	return reverseString(string, stringIndex);
+}
+
+std::string concatIntBetweenTwoStrings(	std::string leftString, unsigned int value, std::string rightString ) {
+    char* middleString = toString(value);
+	std::string resultString = leftString + middleString + rightString;
+
+	delete[] middleString;
+	middleString = nullptr;
+	
+	return resultString;
+}
+
+int main(int argc, char* argv[])
+{
+//	int value  = 234234;
+
+
+	int value = 12345789;
+	int iterations = 10;
+	while (iterations > 0) {
+//		std::string string1 = concatIntBetweenTwoStrings("pointLights[", value, "].position");
+//		std::string string1 = std::to_string(value);
+		std::string string1 = toString(value);
+		std::cout << string1 << std::endl;
+		--iterations;
+	}
+	
+	return 0;
+}
